@@ -1,6 +1,6 @@
 # PipeLeaflet - Simple Maps / Leaflet Visualizations 
 
-This module was  mainly designed to use only leaflet APIs after having trouble embedding MapBox's API when trying to build a d3 dashboard. Something completely in leaflet and easy to use seemed necessary, I think its best or stuf like algorithm development and hopefully soon visualization. If you know any pandas this makes data driven styling pretty trivial. (but not dynamic yet) 
+This module was  mainly designed to use only leaflet APIs after having trouble embedding MapBox's API when trying to build a d3 dashboard. Something completely in leaflet and easy to use seemed necessary, I think its best or stuf like algorithm development and hopefully soon visualization. 
 
 ```
 pip install pipeleaflet

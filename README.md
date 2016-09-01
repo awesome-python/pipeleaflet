@@ -94,6 +94,43 @@ load(filenames,styledicts=styledicts)
 
 Finally I'll show an example of iterfacing with a postgis database and styling an entire database and based on roadway hierarchy and styling accordingly. Not that exciting but I still thought it would be worth showing a post_gis or larger example. For the record this isn't at all the most efficient way to do this in pandas I just didn't feel like writing an apply method that would be more confusing to look at anyway. 
 
+```Python
+import berrl as bl
+import pandas as pd
+from pipeleaflet import *
+import numpy as np
+
+# getting database
+wv_roads = bl.get_database('routes')
+
+# separating out road segments
+interstates = wv_roads[wv_roads['signsystem'].astype(str) == '1']
+us_routes = wv_roads[wv_roads['signsystem'].astype(str) == '2']
+wv_routes = wv_roads[wv_roads['signsystem'].astype(str) == '3']
+county_routes = wv_roads[wv_roads['signsystem'].astype(str) == '4']
+
+colors = bl.get_heatmap51()
+# setting color values
+interstates['COLORKEY'] = colors[0]
+us_routes['COLORKEY'] = colors[18]
+wv_routes['COLORKEY'] = colors[36]
+county_routes['COLORKEY'] = colors[-1]
+
+# setting iterstate values
+interstates['WGT'] = 5
+us_routes['WGT'] = 3
+wv_routes['WGT'] = 2
+county_routes['WGT'] = 1
+
+# concatenating all into one big dataframe
+d = pd.concat([interstates,us_routes,county_routes,wv_routes])
+
+bl.make_postgis_lines(d,'wvroutes.geojson')
+a(styledicts=[{'color':'COLORKEY','weight':'WGT'}])
+```
+
 ![](https://cloud.githubusercontent.com/assets/10904982/18152408/98868efa-6fc3-11e6-9750-3a49c40710a7.png)
+
+I'll add an example of how to display maps in Jupyter notebooks as well. (not hard)
 
 Thats about all, its still a working process there are probably some bugs in logic etc., but things like zoom-level dependent layers and window-bound dependent object loading have already been implemented in other projects as well as pipegeojson already supporting a bounds api where the upperleft/lowerright extrema points of an object can be compared easily against the window boundries. The only problem is implementing it again without making a mess.  

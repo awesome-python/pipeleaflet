@@ -94,3 +94,6 @@ load(filenames,styledicts=styledicts)
 
 Finally I'll show an example of iterfacing with a postgis database and styling an entire database and based on roadway hierarchy and styling accordingly. Not that exciting but I still thought it would be worth showing a post_gis or larger example. For the record this isn't at all the most efficient way to do this in pandas I just didn't feel like writing an apply method that would be more confusing to look at anyway. 
 
+![](https://cloud.githubusercontent.com/assets/10904982/18152408/98868efa-6fc3-11e6-9750-3a49c40710a7.png)
+
+Thats about all, its still a working process there are probably some bugs in logic etc., but things like zoom-level dependent layers and window-bound dependent object loading have already been implemented in other projects as well as pipegeojson already supporting a bounds api where the upperleft/lowerright extrema points of an object can be compared easily against the window boundries. The only problem is implementing it again without making a mess.  

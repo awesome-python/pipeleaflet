@@ -22,7 +22,7 @@ bl.make_points(fatalities,filename='fatalities.geojson')
 load(['fatalities.geojson'])
 ```
 
-Picture 1 Here
+![](https://cloud.githubusercontent.com/assets/10904982/18152204/29826368-6fc2-11e6-9e01-2c3304ad715a.png)
 
 Of course being able to pass things between a dataframe and the representation of said items means you can style by fields and categoricals or combination of either / or in the next example I'll show how easy it is to style by adding a COLORKEY field to the entire dataframe. Below I'm simply doing a pandas groupby of a categorical value in the dataframe in this case the crash causes and apply a different color for every unique value in the field. 
 
@@ -50,7 +50,7 @@ bl.make_points(fatalities,filename='fatalities.geojson')
 # colorkey fields are just 6-digit hex rgb strings 
 load(['fatalities.geojson'],colorkey='COLORKEY')
 ```
-Picture 2 Here
+![](https://cloud.githubusercontent.com/assets/10904982/18152205/298e14f6-6fc2-11e6-9b46-953ceac4cf69.png)
 
 I often find myself using this fo things like algorithm development almost always with a SimpleHTTPServer as localhost, so if you use this module like I do you'll probably end up using the a() (which isn't necessarily recommended but its alot easier) function which is essentially a hacky make_html() method that grabs all geojsons in the current directory and LOADS AND OPENS the output in your browser. You can still pass the kwargs into a() method like you would load().
 
@@ -90,7 +90,7 @@ styledicts = [dictrow1,dictrow2,dictrow3,dictrow4]
 load(filenames,styledicts=styledicts)
 ```
 
-Picture 3 here
+![](https://cloud.githubusercontent.com/assets/10904982/18152206/29932f7c-6fc2-11e6-972f-1a5f3488913b.png)
 
-Finally I'll show an example of iterfacing with a postgis database and styling an entire database and based on roadway hierarchy and styling accordingly. Not that exciting but I still thought it would be worth showing a post_gis or larger example. 
+Finally I'll show an example of iterfacing with a postgis database and styling an entire database and based on roadway hierarchy and styling accordingly. Not that exciting but I still thought it would be worth showing a post_gis or larger example. For the record this isn't at all the most efficient way to do this in pandas I just didn't feel like writing an apply method that would be more confusing to look at anyway. 
 

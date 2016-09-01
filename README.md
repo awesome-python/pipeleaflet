@@ -85,9 +85,9 @@ dictrow2 = {'color':'#CC33FF','radius':1}
 dictrow3 = {'color':'#FFE800','weight':20}
 
 filenames = ['polygon.geojson','points.geojson','line.geojson']
-stylerows = [dictrow1,dictrow2,dictrow3,dictrow4]
+styledicts = [dictrow1,dictrow2,dictrow3,dictrow4]
 
-load(filenames,stylerows=stylerows)
+load(filenames,styledicts=styledicts)
 ```
 
 Picture 3 here

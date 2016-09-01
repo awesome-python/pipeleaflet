@@ -1,6 +1,7 @@
 import os
 import json
 import itertools
+from IPython.display import IFrame
 
 def make_starting_block():
 	string = '''
@@ -90,30 +91,30 @@ def analyze_dictrow(dictrow):
 		keyrow = row
 		if row == 'color':
 			if not '#' in str(dictrow[row]):
-				dictrow[keyrow] = "feature.properties['%s']" % row
-		if row == 'radius':
+				dictrow[keyrow] = "feature.properties['%s']" % dictrow[row]
+		elif row == 'radius':
 			stringrow = str(dictrow[row])
 			bool = False
 			for row in stringrow:
 				if not str(row) in '0123456789':
 					bool = True
-				if bool == True:
-					dictrow[keyrow] = "feature.properties['%s']" % row
-		if row == 'fillOpacity':
+			if bool == True:
+				dictrow[keyrow] = "feature.properties['%s']" % stringrow
+		elif row == 'fillOpacity':
 			if not '.' in str(dictrow[row]):
-				dictrow[keyrow] = "feature.properties['%s']" % row
-		if row == 'opacity':
+				dictrow[keyrow] = "feature.properties['%s']" % stringrow
+		elif row == 'opacity':
 			if not '.' in str(dictrow[row]):
-				dictrow[keyrow] = "feature.properties['%s']" % row
-		if row == 'weight':	
-			stringrow = str(row)
+				dictrow[keyrow] = "feature.properties['%s']" % stringrow
+		elif row == 'weight':	
+			stringrow = str(dictrow[keyrow])
 			bool = False
 			for row in stringrow:
 				if not str(row) in '0123456789':
 					bool = True
-				if bool == True:
-					dictrow[keyrow] = "feature.properties['%s']" % row
-		return dictrow
+			if bool == True:
+				dictrow[keyrow] = "feature.properties['%s']" % stringrow
+	return dictrow
 
 # gets the style strings needed to create the bindings
 # can either 1 or two strings
@@ -127,16 +128,19 @@ def get_style_strings(element,dictrow,colorkey):
 			string2 = "{radius: %s, fillOpacity: %s}" % (dictrow['radius'],dictrow['fillOpacity'])
 			return string1,string2
 		else:
-			string = '{"color": "%s","weight": %s,"opacity": %s}' % (dictrow['color'],dictrow['weight'],dictrow['opacity'])
+			if 'properties' in dictrow['color']:
+				string = '{"color": %s,"weight": %s,"opacity": %s}' % (dictrow['color'],dictrow['weight'],dictrow['opacity'])
+			else:
+				string = '{"color": "%s","weight": %s,"opacity": %s}' % (dictrow['color'],dictrow['weight'],dictrow['opacity'])
 			return string
 	elif not colorkey == False and dictrow == False:
 		if element == 'Point':
-			keystring = "feature.properties['%s']" % row
-			string1 = "{color: '%s'}" % keysting
+			keystring = "feature.properties['%s']" % colorkey
+			string1 = "{color: %s}" % keystring
 			string2 = '{radius: 2, fillOpacity: 0.85}'
 			return string1,string2
 		else:
-			keystring = "feature.properties['%s']" % row
+			keystring = "feature.properties['%s']" % colorkey
 			string = '{"color": %s,"weight": 3,"opacity": 1.0}' % keystring
 			return string
 	else:
@@ -243,6 +247,8 @@ def make_html(filenames,colorkey,styledicts,bounds):
 
 		if not styledicts == False:
 			dictrow = styledicts[count]
+			if dictrow == [] or dictrow == {}:
+				dictrow = False
 		else:
 			dictrow = False
 
@@ -301,24 +307,24 @@ def show(url):
 # style rows is a list of dictionaries with at specific inputs
 # that can relate to either a field in every feature or a hard value set
 # for the entire geojson
-def load(filenames,stylerows,**kwargs):
+def load(filenames,**kwargs):
 	colorkey = False
-	stylerows = False
+	styledicts = False
 	load_instances = False
 	chrome = False
 
 	for key,value in kwargs.iteritems():
 		if key == 'colorkey':
 			colorkey = value
-		if key == 'stylerows':
-			stylerows = value
+		if key == 'styledicts':
+			styledicts = value
 		if key == 'load_instances':
 			load_instances = value
 		if key == 'chrome':
 			chrome = value
 
 	# getting the html block string 
-	html = make_html(filenames,colorkey,stylerows,False)
+	html = make_html(filenames,colorkey,styledicts,False)
 
 	# writing html block to file
 	with open('index.html','wb') as f:
@@ -331,7 +337,7 @@ def load(filenames,stylerows,**kwargs):
 
 	print  'Map instance written to index.html'
 
-	return 'localhost:8000/index.html'
+	return 'http://localhost:8000/index.html'
 
 
 #cleans the current of geojson files (deletes them)
@@ -346,9 +352,19 @@ def cln():
 # that being said it can be called with no required arguments
 def a(**kwargs):
 	colorkey = False
-	stylerows = False
+	styledicts = False
 	load_instances = True
+	for key,value in kwargs.iteritems():
+		if key == 'colorkey':
+			colorkey = value
+		if key == 'styledicts':
+			styledicts = value
+		if key == 'load_instances':
+			load_instances = value
+		if key == 'chrome':
+			chrome = value
+
 
 	filenames = collect()
 
-	load(filenames,colorkey=colorkey,stylerows=stylerows,load_instances=load_instances)
+	load(filenames,colorkey=colorkey,styledicts=styledicts,load_instances=load_instances)

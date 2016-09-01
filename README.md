@@ -46,7 +46,6 @@ fatalities = pd.read_csv('wv_fatalities.csv')
 # A field called COLORKEY if automatically added behind the scenes
 # a groupby and a generator is all thatas going on 
 fatalities = bl.unique_groupby(fatalities,'VAR23C')
-print fatalities
 
 # making geojson of the csv file
 bl.make_points(fatalities,filename='fatalities.geojson')

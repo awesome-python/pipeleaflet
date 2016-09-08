@@ -68,7 +68,9 @@ The objects it options it currently supports:
 * opacity
 * zooms
 
-Zooms can accept 3 different types of values that have a different action, 1) the bool True, if this is sent in as the zooms dict value, the file will be active on all layers but the map will only load what is in the viewing window, 2) a lower zoom value and higher zoom value that indicates what range the file we'll be active, 3) two header values inserted like the integer zoom values as a list like the integer option previously. This will dynamically set the range in which the layer is active based on the values within a dataframe.
+Zooms can accept 3 different types of values that have a different action, 1) the bool True, if this is sent in as the zooms dict value, the file will be active on all layers but the map will only load what is in the viewing window, 2) a lower zoom value and higher zoom value that indicates what range the file we'll be active, 3) two header values inserted like the integer zoom values as a list like the integer option previously. This will dynamically set the range in which the layer is active based on the values within a dataframe. If zooms values are given then pipeleaflet will assume you only want the viewing window to be values to be on the map. 
+
+*Note for viewing windows for polygons / line segments, pipeleaflet expects a geojson file created with pipegeojson with kwargs "bounds = True", which creates an object in geojson that's interfacing the window bounds to do this operation.*
 
 The implementation tries to infer whether an entry is a field or a static input for the file, but no guarantees,if you wish to simply load a file under default conditions you can put an empty dict,False bool, or empty list into its position and the list and file will load under default conditions.
 

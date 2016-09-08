@@ -60,12 +60,15 @@ load(['fatalities.geojson'],colorkey='COLORKEY')
 I often find myself using this fo things like algorithm development almost always with a SimpleHTTPServer as localhost, so if you use this module like I do you'll probably end up using the a() (which isn't necessarily recommended but its alot easier) function which is essentially a hacky make_html() method that grabs all geojsons in the current directory and LOADS AND OPENS the output in your browser. You can still pass the kwargs into a() method like you would load().
 
 #### Other Useful Methods 
-While pipeleaflet is mainly intended to only style objects for colors, method exists to style other aspects of objects either based on a column field or a static value for the whole file. Currently it supports 4 different visualization options. It accepts the options in a list of dictionary objects.
+While pipeleaflet is mainly intended to only style objects for colors, method exists to style other aspects of objects either based on a column field or a static value for the whole file. Currently it supports 5 different visualization options. It accepts the options in a list of dictionary objects.
 The objects it options it currently supports:
 * color
 * weight (Polygons / lines)
 * radius (Points Only)
 * opacity
+* zooms
+
+Zooms can accept 3 different types of values that have a different action, 1) the bool True, if this is sent in as the zooms dict value, the file will be active on all layers but the map will only load what is in the viewing window, 2) a lower zoom value and higher zoom value that indicates what range the file we'll be active, 3) two header values inserted like the integer zoom values as a list like the integer option previously. This will dynamically set the range in which the layer is active based on the values within a dataframe.
 
 The implementation tries to infer whether an entry is a field or a static input for the file, but no guarantees,if you wish to simply load a file under default conditions you can put an empty dict,False bool, or empty list into its position and the list and file will load under default conditions.
 

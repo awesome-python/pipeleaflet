@@ -114,6 +114,22 @@ def analyze_dictrow(dictrow):
 					bool = True
 			if bool == True:
 				dictrow[keyrow] = "feature.properties['%s']" % stringrow
+		elif row == 'zooms':
+			intbool = True
+			if isinstance(dictrow[keyrow],list):
+				teststring = dictrow[keyrow][0]
+				testlist = dictrow[keyrow]
+				for row in str(teststring):
+					if len(str(teststring)) >= 3:
+						intbool = False
+				if intbool == False:
+					headerbool = True
+					dictrow[keyrow] = ["layer.feature.properties['%s']" % testlist[0],"layer.feature.properties['%s']" % testlist[1]]					
+			else:
+				# this argument is for if you want window dependent styling but 
+				# dont want to putin specific zoom values
+				if dictrow[keyrow] == True:
+					dictrow[keyrow] = [0,20]
 	return dictrow
 
 # gets the style strings needed to create the bindings
@@ -155,9 +171,9 @@ def get_style_strings(element,dictrow,colorkey):
 # returns base option sets for a given feature type
 def get_base_template(featuretype):
 	if featuretype == 'Point':
-		return {'radius': 2, 'fillOpacity': 0.85,"color": "#0078FF"}
+		return {'radius': 2, 'fillOpacity': 0.85,"color": "#0078FF","zooms":False}
 	else:
-		return {"color": "#0078FF","weight": 3,"opacity": 1.0}
+		return {"color": "#0078FF","weight": 3,"opacity": 1.0,"zooms":False}
 
 
 # a list of dictionaries will be given for controlling options
@@ -189,7 +205,9 @@ def safe_dict_options(optiondictrow,featuretype):
 # makes an entire block of javascript so that a geojson file is displayed
 def make_block(filename,count,element,dictrow,colorkey,text):
 	if element == 'Point':
+		# getting style string and creating zoom block from the dictrow
 		string1,string2 = get_style_strings(element,dictrow,colorkey)
+		zoomblock = make_zoom_block(dictrow)	
 		block = '''
 $.getJSON('http://localhost:8000/%s',function(data) { addDataToMap%s(data,map); });
 	function addDataToMap%s(data, map) {
@@ -205,11 +223,14 @@ $.getJSON('http://localhost:8000/%s',function(data) { addDataToMap%s(data,map); 
 	        }});
 	    dataLayer.addTo(map);
 		map.fitBounds(dataLayer.getBounds())
+		%s
 		};
-		''' % (filename,count,count,string1,string2,text)
+		''' % (filename,count,count,string1,string2,text,zoomblock)
 
 	else:
-		string = get_style_strings(element,dictrow,colorkey)	
+		# getting style string and creating zoom block from the dictrow
+		string = get_style_strings(element,dictrow,colorkey)
+		zoomblock = make_zoom_block(dictrow)	
 		block = '''
 $.getJSON('http://localhost:8000/%s',function(data) { addDataToMap%s(data,map); });
 	function addDataToMap%s(data, map) {
@@ -222,10 +243,54 @@ $.getJSON('http://localhost:8000/%s',function(data) { addDataToMap%s(data,map); 
 	        }});
 	    dataLayer.addTo(map);
 		map.fitBounds(dataLayer.getBounds())
-		};''' % (filename,count,count,string,text)
+		%s
+		};''' % (filename,count,count,string,text,zoomblock)
 	return block
 
 
+# creates the zoom block which will be parsed into make_block
+def make_zoom_block(dictrow):
+	# analyzing dictrow 
+	dictrow = analyze_dictrow(dictrow)
+	
+	# getting zoom bounds from dictionary row
+	zoombounds = dictrow['zooms']
+
+	if zoombounds == False:
+		return ''
+	else:		
+		zoomstring = '''
+\tmap.on('dragend',function(e) {
+\t	var outerbounds = [[map.getBounds()._southWest.lng,map.getBounds()._northEast.lat],[map.getBounds()._northEast.lng,map.getBounds()._southWest.lat]]
+\t	var outerbounds = L.bounds(outerbounds[0],outerbounds[1]);
+\t	dataLayer.eachLayer(function(layer) {
+\t		if (((outerbounds.contains(layer.feature.properties['bounds']) == true)||(outerbounds.intersects(layer.feature.properties['bounds']) == true))&&((map.getZoom() >= %s)&&(map.getZoom() <= %s))) { 
+\t			layer.addTo(map) 
+\t			console.log('added')
+\t		}
+\t		else {
+\t			if ( dataLayer.hasLayer(layer) == true ) {
+\t				map.removeLayer(layer)
+\t			}
+\t		}
+\t\t	})
+\t\t\t});
+\tmap.on('zoomend',function(e) {
+\t	var outerbounds = [[map.getBounds()._southWest.lng,map.getBounds()._northEast.lat],[map.getBounds()._northEast.lng,map.getBounds()._southWest.lat]]
+\t	var outerbounds = L.bounds(outerbounds[0],outerbounds[1]);
+\t	dataLayer.eachLayer(function(layer) {
+\t		if (((outerbounds.contains(layer.feature.properties['bounds']) == true)||(outerbounds.intersects(layer.feature.properties['bounds']) == true))&&((map.getZoom() >= %s)&&(map.getZoom() <= %s))) { 
+\t			layer.addTo(map) 
+\t			console.log('added')
+\t		}
+\t		else {
+\t			if ( dataLayer.hasLayer(layer) == true ) {
+\t				map.removeLayer(layer)
+\t			}
+\t		}
+\t\t	})
+\t\t\t});''' % (zoombounds[0],zoombounds[1],zoombounds[0],zoombounds[1])
+	return zoomstring
 
 # make bindings after color options were added
 def make_bindings(headers,filename,count,colorkey,dictrow,element):
@@ -368,3 +433,5 @@ def a(**kwargs):
 	filenames = collect()
 
 	load(filenames,colorkey=colorkey,styledicts=styledicts,load_instances=load_instances)
+
+
